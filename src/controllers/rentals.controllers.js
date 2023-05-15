@@ -3,7 +3,7 @@ import { db } from "../database/database.connection.js"
 
 export async function getRentals(req, res) {
     try {
-       
+        res.send("Oi")
     } catch (err) {
         res.status(500).send(err.message)
     }
@@ -11,7 +11,7 @@ export async function getRentals(req, res) {
 
 export async function createRental(req, res) {
     try {
-        
+        res.send("Oi")
     } catch (err) {
         res.status(500).send(err.message)
     }
@@ -19,7 +19,7 @@ export async function createRental(req, res) {
 
 export async function finishRental(req, res) {
     try {
-        
+        res.send("Oi")
     } catch (err) {
         res.status(500).send(err.message)
     }
