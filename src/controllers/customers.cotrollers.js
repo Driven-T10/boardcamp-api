@@ -1,9 +1,9 @@
 import { db } from "../database/database.connection.js"
 
-
 export async function getCustomers(req, res) {
     try {
-        res.send("Oi")
+        const { rows: customers } = await db.query(`SELECT * FROM customers;`)
+        res.send(customers)
     } catch (err) {
         res.status(500).send(err.message)
     }
@@ -11,7 +11,7 @@ export async function getCustomers(req, res) {
 
 export async function getCustomerById(req, res) {
     try {
-        res.send("Oi")
+        res.send(res.locals.customer)
     } catch (err) {
         res.status(500).send(err.message)
     }
