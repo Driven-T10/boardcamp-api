@@ -3,15 +3,48 @@ import { db } from "../database/database.connection.js"
 
 export async function getRentals(req, res) {
     try {
-        res.send("Oi")
+        const { rows: rentals } = await db.query(`
+            SELECT rentals.*, customers.name AS "customerName", games.name AS "gameName"
+                FROM rentals
+                JOIN customers ON rentals."customerId" = customers.id
+                JOIN games ON rentals."gameId" = games.id;
+        `)
+
+        const result = rentals.map((rental) => {
+
+            const rentalResponse = {
+                ...rental,
+                customer: {
+                    id: rental.customerId,
+                    name: rental.customerName
+                },
+                game: {
+                    id: rental.gameId,
+                    name: rental.gameName
+                }
+            }
+
+            delete rentalResponse.customerName
+            delete rentalResponse.gameName
+            return rentalResponse
+        })
+
+        res.send(result)
     } catch (err) {
         res.status(500).send(err.message)
     }
 }
 
 export async function createRental(req, res) {
+    const { customerId, gameId, daysRented } = req.body
+    const { pricePerDay } = res.locals
+
     try {
-        res.send("Oi")
+        await db.query(`
+        INSERT INTO rentals ("customerId", "gameId", "daysRented", "rentDate", "originalPrice", "returnDate", "delayFee")
+            VALUES ($1, $2, $3, $4, $5, null, null);
+       `, [customerId, gameId, daysRented, dayjs().format('YYYY-MM-DD'), pricePerDay * daysRented])
+       res.sendStatus(201)
     } catch (err) {
         res.status(500).send(err.message)
     }
@@ -27,7 +60,7 @@ export async function finishRental(req, res) {
 
 export async function deleteRental(req, res) {
     try {
-        
+
     } catch (err) {
         res.status(500).send(err.message)
     }
