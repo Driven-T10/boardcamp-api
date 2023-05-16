@@ -44,15 +44,31 @@ export async function createRental(req, res) {
         INSERT INTO rentals ("customerId", "gameId", "daysRented", "rentDate", "originalPrice", "returnDate", "delayFee")
             VALUES ($1, $2, $3, $4, $5, null, null);
        `, [customerId, gameId, daysRented, dayjs().format('YYYY-MM-DD'), pricePerDay * daysRented])
-       res.sendStatus(201)
+        res.sendStatus(201)
     } catch (err) {
         res.status(500).send(err.message)
     }
 }
 
 export async function finishRental(req, res) {
+    const { id } = req.params
+    const { pricePerDay, daysRented, rentDate } = res.locals
+    let delayFee = null
+
+    const difference = dayjs().diff(dayjs(rentDate), 'days')
+
+    if (difference > daysRented) {
+        delayFee = pricePerDay * (difference - daysRented)
+    }
+
     try {
-        res.send("Oi")
+        await db.query(`
+            UPDATE rentals
+                SET "returnDate"=$1, "delayFee"=$2
+                WHERE id=$3;
+        `, [dayjs().format('YYYY-MM-DD'), delayFee, id])
+        res.sendStatus(200)
+
     } catch (err) {
         res.status(500).send(err.message)
     }
