@@ -1,8 +1,8 @@
-import { db } from "../database/database.connection.js"
+import { createGameDB, getAllGamesDB } from "../repositories/games.repository.js"
 
 export async function getGames(req, res) {
     try {
-        const { rows: games } = await db.query(`SELECT * FROM games;`)
+        const { rows: games } = await getAllGamesDB()
         res.send(games)
     } catch (err) {
         res.status(500).send(err.message)
@@ -10,13 +10,8 @@ export async function getGames(req, res) {
 }
 
 export async function createGames(req, res) {
-    const { name, image, stockTotal, pricePerDay } = req.body
     try {
-        await db.query(`
-            INSERT INTO games (name, image, "stockTotal", "pricePerDay")
-                VALUES ($1, $2, $3, $4);
-        `, [name, image, stockTotal, pricePerDay])
-
+        await createGameDB(req.body)
         res.sendStatus(201)
     } catch (err) {
         res.status(500).send(err.message)
